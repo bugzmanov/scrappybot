@@ -1,10 +1,10 @@
-use crate::telegram_api::{SendMessage, TelegramClient};
+use crate::api::telegram_api::{SendMessage, TelegramClient};
 use crate::Diff;
-use crate::ListingItem;
 use anyhow::Result;
+use core::fmt::Display;
 
 pub trait NotificationService {
-    fn notify(&mut self, diff: Diff<ListingItem>) -> Result<()>;
+    fn notify<T: Display>(&mut self, diff: Diff<T>) -> Result<()>;
 }
 
 pub struct TelegramService {
@@ -20,12 +20,12 @@ impl TelegramService {
         }
     }
 
-    pub async fn notify(&mut self, diff: Diff<ListingItem>) -> Result<()> {
+    pub async fn notify<T: Display>(&mut self, diff: Diff<T>, desc: &str) -> Result<()> {
         if !diff.added.is_empty() {
             for item in diff.added {
                 let message = SendMessage {
                     chat_id: self.chat_id.clone(),
-                    text: format!("New Listing:\n {}", item),
+                    text: format!("New {}:\n {}", desc, item),
                     parse_mode: Some("MarkdownV2".to_string()),
                     disable_web_page_preview: true,
                 };
@@ -37,7 +37,7 @@ impl TelegramService {
             for item in diff.changed {
                 let message = SendMessage {
                     chat_id: self.chat_id.clone(),
-                    text: format!("Modified Listing:\n {}", item),
+                    text: format!("Modified {}:\n {}", desc, item),
                     parse_mode: Some("MarkdownV2".to_string()),
                     disable_web_page_preview: true,
                 };
