@@ -12,19 +12,29 @@ mod state;
 mod storage;
 
 use api::telegram_api::TelegramClient;
+use api::yandex_disk_api::DiskClient;
 use state::Diff;
 use state::Snapshot;
 use storage::BlobStorage;
+use storage::YandexDiskStorage;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let items = scrapes::hudhomestore::scrape().await?;
 
-    let mut storage = storage::FsSystem::new();
-    let old_snapshot = storage.load::<Snapshot>()?;
+    // let mut storage = storage::FsSystem::new();
+    let http_client = reqwest::Client::new();
+    let disk_client = DiskClient::new("DISK TOKEN".to_string(), http_client);
+
+    let storage = YandexDiskStorage::new(
+        disk_client,
+        "estatebot".to_string(),
+        "hudhome_snapshot".to_string(),
+    );
+    let old_snapshot = storage.load::<Snapshot>().await?;
 
     let http_client = reqwest::Client::new();
-    let telegram_client = TelegramClient::new("TODO: TELEGRAM API KEY".to_string(), http_client);
+    let telegram_client = TelegramClient::new("TELEGA TOKEN".to_string(), http_client);
     let mut telegram = notification::TelegramService::new(telegram_client);
     let snapshot = Snapshot::new(items.to_vec());
 
@@ -34,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             if !diff.changed.is_empty() || !diff.added.is_empty() {
                 telegram.notify(diff, "hudhome listing").await?;
 
-                storage.save(&snapshot)?;
+                storage.save(&snapshot).await?
             }
         }
         None => {
@@ -48,7 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 )
                 .await?;
 
-            storage.save(&snapshot)?;
+            storage.save(&snapshot).await?;
         }
     }
     Ok(())
