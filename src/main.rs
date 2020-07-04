@@ -12,7 +12,6 @@ mod bot;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("NOT HERE");
     bot::run().await?;
     Ok(())
 }

@@ -10,7 +10,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 struct CustomEvent {
-    first_name: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -43,7 +42,6 @@ fn my_handler(e: CustomEvent, c: Context) -> Result<CustomOutput, HandlerError> 
     let bot_results:  Result<BotStats, Box<dyn std::error::Error>>  = block_on(bot::run());
     match bot_results {
         Ok(stats) => {
-            println!("Everythin is fine");
             Ok(CustomOutput {
                 changed_records: stats.changed,
                 new_records: stats.added,
@@ -51,7 +49,6 @@ fn my_handler(e: CustomEvent, c: Context) -> Result<CustomOutput, HandlerError> 
             })
         },
         Err(error) => {
-            println!("Everythin is bad");
             Err(HandlerError::from(&error.to_string()[..])) 
         }           
     }
