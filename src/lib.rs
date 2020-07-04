@@ -1,6 +1,10 @@
+#[macro_use]
 extern crate anyhow;
+#[macro_use]
 extern crate glob;
+#[macro_use]
 extern crate select;
+#[macro_use]
 extern crate serde_json;
 
 mod api;
@@ -8,11 +12,4 @@ mod notification;
 mod scrapes;
 mod state;
 mod storage;
-mod bot;
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("NOT HERE");
-    bot::run().await?;
-    Ok(())
-}
+pub mod bot;

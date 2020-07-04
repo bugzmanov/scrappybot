@@ -36,7 +36,6 @@ impl IdChecksum for ListingItem {
 
 impl Display for ListingItem {
     fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
-        let result = String::new();
         let url = format!("[{}](https://www.hudhomestore.com/Listing/PropertyDetails.aspx?caseNumber={}&sLanguage=ENGLISH)", self.csv[2], self.id);
         let item_str = format!("{} - {:?}", url, &self.csv[3..])
             .replacen("-", "\\-", 100)

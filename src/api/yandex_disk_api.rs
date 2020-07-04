@@ -74,7 +74,7 @@ impl DiskClient {
         let response = serde_json::from_str::<ResourceURLResponse>(&response_str)
             .with_context(|| format!("Actual server response: `{}`", &response_str))?;
 
-        let response_str = self
+        let _response_str = self
             .http_client
             .put(&response.href)
             .header(reqwest::header::CONTENT_TYPE, "application/json")
@@ -163,7 +163,7 @@ impl DiskClient {
     }
 
     pub async fn delete(&self, path: &str) -> Result<()> {
-        let response_str = self
+        let _response_str = self
             .http_client
             .delete(&self.api_url("resources"))
             .header(reqwest::header::CONTENT_TYPE, "application/json")

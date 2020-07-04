@@ -1,7 +1,7 @@
 use crate::api::telegram_api::{SendMessage, TelegramClient};
-use crate::Diff;
 use anyhow::Result;
 use core::fmt::Display;
+use super::state::Diff;
 
 pub trait NotificationService {
     fn notify<T: Display>(&mut self, diff: Diff<T>) -> Result<()>;
@@ -13,16 +13,16 @@ pub struct TelegramService {
 }
 
 impl TelegramService {
-    pub fn new(client: TelegramClient) -> Self {
+    pub fn new(client: TelegramClient, chat_id: &str) -> Self {
         TelegramService {
             client: client,
-            chat_id: "-426414832".to_string(),
+            chat_id: chat_id.to_string(),
         }
     }
 
-    pub async fn notify<T: Display>(&mut self, diff: Diff<T>, desc: &str) -> Result<()> {
+    pub async fn notify<T: Display>(&mut self, diff: &Diff<T>, desc: &str) -> Result<()> {
         if !diff.added.is_empty() {
-            for item in diff.added {
+            for item in diff.added.iter() {
                 let message = SendMessage {
                     chat_id: self.chat_id.clone(),
                     text: format!("New {}:\n {}", desc, item),
@@ -34,7 +34,7 @@ impl TelegramService {
         }
 
         if !diff.changed.is_empty() {
-            for item in diff.changed {
+            for item in diff.changed.iter() {
                 let message = SendMessage {
                     chat_id: self.chat_id.clone(),
                     text: format!("Modified {}:\n {}", desc, item),
